@@ -1,159 +1,116 @@
-# Turborepo starter
+# Financy
 
-This Turborepo starter is maintained by the Turborepo core team.
+Aplicação full stack para organização de finanças pessoais. O usuário cria conta, faz login e gerencia **transações** e **categorias** vinculadas apenas à sua conta.
 
-## Using this example
+Monorepo com [Turborepo](https://turbo.build/) e [pnpm](https://pnpm.io/).
 
-Run the following command:
+## Stack
 
-```sh
-npx create-turbo@latest
+| Camada | Tecnologias |
+|--------|-------------|
+| **Backend** (`apps/backend`) | TypeScript, GraphQL (Apollo Server), Prisma, SQLite, Fastify, JWT |
+| **Frontend** (`apps/frontend`) | TypeScript, React, Vite, Apollo Client, Tailwind CSS, React Hook Form, Zod |
+
+## Estrutura
+
+```
+financy/
+├── apps/
+│   ├── backend/     # API GraphQL
+│   └── frontend/    # Interface React
+├── packages/
+│   └── tsconfig/    # Configuração TypeScript compartilhada
+├── package.json     # Scripts do monorepo
+└── pnpm-workspace.yaml
 ```
 
-## What's inside?
+## Funcionalidades
 
-This Turborepo includes the following packages/apps:
+- Cadastro e login com JWT
+- CRUD de transações (criar, listar, editar, excluir)
+- CRUD de categorias (criar, listar, editar, excluir)
+- Isolamento por usuário: cada um vê apenas seus próprios dados
+- Dashboard com resumo financeiro
+- Páginas: login, cadastro, dashboard, transações, categorias e perfil
 
-### Apps and Packages
+## Pré-requisitos
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- [Node.js](https://nodejs.org/) ≥ 18 (recomendado: versão do `.nvmrc`, 24.x)
+- [pnpm](https://pnpm.io/) 9.x (`corepack enable` ou `npm i -g pnpm`)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Como rodar
 
-### Utilities
+### 1. Instalar dependências
 
-This Turborepo has some additional tools already setup for you:
+Na raiz do repositório:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Configurar variáveis de ambiente
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+**Backend** — copie o exemplo e ajuste os valores:
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | URL do SQLite (ex.: `file:./dev.db`) |
+| `JWT_SECRET` | Chave secreta para tokens JWT |
+| `PORT` | Porta do servidor (padrão: `3333`) |
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+**Frontend** — copie o exemplo e aponte para a API:
 
-```sh
-turbo build --filter=docs
+```bash
+cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-Without global `turbo`:
+| Variável | Descrição |
+|----------|-----------|
+| `VITE_BACKEND_URL` | URL do GraphQL (ex.: `http://localhost:3333/graphql`) |
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+### 3. Banco de dados (backend)
+
+```bash
+cd apps/backend
+pnpm prisma:generate
+pnpm prisma:migrate
+cd ../..
 ```
 
-### Develop
+### 4. Subir o projeto
 
-To develop all apps and packages, run the following command:
+**Opção A — tudo junto (recomendado):**
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+**Opção B — apps separados:**
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+```bash
+# Terminal 1
+pnpm --filter backend dev
+
+# Terminal 2
+pnpm --filter frontend dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+- API: `http://localhost:3333` (GraphQL em `/graphql`)
+- Frontend: `http://localhost:5173` (porta padrão do Vite)
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Scripts úteis
 
-```sh
-turbo dev --filter=web
-```
+| Comando | Descrição |
+|---------|-----------|
+| `pnpm dev` | Sobe backend e frontend em modo desenvolvimento |
+| `pnpm build` | Build de produção de todos os apps |
+| `pnpm lint` | Lint em todos os pacotes |
+| `pnpm --filter backend prisma:studio` | Interface visual do banco (Prisma Studio) |
 
-Without global `turbo`:
+## Entrega do desafio
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Para correção, o repositório público deve conter as pastas `backend` e `frontend` com a resolução obrigatória. Neste monorepo, o equivalente é `apps/backend` e `apps/frontend`.

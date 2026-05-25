@@ -4,7 +4,7 @@ import { onError } from '@apollo/client/link/error'
 import { AUTH_TOKEN_KEY, handleUnauthorized } from './auth'
 
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4000/graphql',
+  uri: import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3333/graphql',
   fetch: async (input, init) => {
     const response = await fetch(input, init)
 
